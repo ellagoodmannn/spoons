@@ -364,7 +364,6 @@ async function findMatch() {
     const data = await response.json();
 
     document.getElementById('loading').classList.remove('visible');
-    document.getElementById('drawingPreview').src = dataURL;
     document.getElementById('matchImg').src = 'spoons/' + data.filename;
     document.getElementById('matchName').textContent = data.filename.replace('.png','').replace(/-/g,' ');
     document.getElementById('resultWrap').classList.add('visible');
