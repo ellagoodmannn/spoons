@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spoons</title>
+  <style>
+    @font-face {
+      font-family: 'GT Haptik';
+      src: url('fonts/GT-Haptik-Regular.woff') format('woff');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'GT Haptik';
+      src: url('fonts/GT-Haptik-Black.woff') format('woff');
+      font-weight: 900;
+    }
+    @font-face {
+      font-family: 'Politip';
+      src: url('fonts/Politip.woff') format('woff');
+      font-weight: 700;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      background: #fff;
+      color: #000;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      padding: 18px 28px;
+      border-bottom: 1px solid #ccc;
+      gap: 20px;
+    }
+
+    .logo {
+      font-family: 'Politip', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .tagline {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #000;
+      flex: 1;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-links a {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 0.9rem;
+      background: #7ef07e;
+      color: #000;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+    }
+
+    .nav-links a:hover {
+      background: #5ed45e;
+    }
+
+    /* MAIN */
+    main {
+      padding: 32px 28px 60px;
+    }
+
+    h1 {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    /* CANVAS AREA */
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      background: #e2fae2;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    .canvas-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 1rem;
+      color: rgba(0,0,0,0.3);
+      pointer-events: none;
+      transition: opacity 0.3s;
+      text-align: center;
+    }
+
+    .clear-btn {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 0.85rem;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 6px 14px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .clear-btn:hover { background: #f0f0f0; }
+
+    /* RESULT */
+    .result-wrap {
+      display: none;
+      margin-top: 40px;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .result-wrap.visible {
+      display: flex;
+    }
+
+    .result-drawing,
+    .result-match {
+      flex: 1;
+    }
+
+    .result-label {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .result-drawing img,
+    .result-match-img {
+      width: 100%;
+      background: #e2fae2;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .result-match-img {
+      object-fit: contain;
+      max-height: 420px;
+    }
+
+    .match-name {
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin-top: 12px;
+    }
+
+    /* LOADING */
+    .loading {
+      display: none;
+      margin-top: 32px;
+      font-family: 'GT Haptik', sans-serif;
+      font-weight: 400;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .loading.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="/">spoons</a>
+    <p class="tagline">You haven't thought about spoons enough.<br>Welcome to my degree project.</p>
+    <div class="nav-links">
+      <a href="#">About</a>
+      <a href="#">Projects</a>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Draw a spoon, see a spoon.</h1>
+
+    <div class="canvas-wrap" id="canvasWrap" style="height: 520px;">
+      <canvas id="drawCanvas"></canvas>
+      <div class="canvas-hint" id="hint">Draw your spoon here</div>
+      <button class="clear-btn" id="clearBtn" onclick="clearCanvas()">Clear</button>
+    </div>
+
+    <div class="loading" id="loading">Looking for your spoon...</div>
+
+    <div class="result-wrap" id="resultWrap">
+      <div class="result-drawing">
+        <p class="result-label">Your drawing</p>
+        <img id="drawingPreview" src="" alt="Your drawing">
+      </div>
+      <div class="result-match">
+        <p class="result-label">Closest spoon</p>
+        <img class="result-match-img" id="matchImg" src="" alt="Matched spoon">
+        <p class="match-name" id="matchName"></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    const wrap = document.getElementById('canvasWrap');
+    const hint = document.getElementById('hint');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let drawing = false;
+    let hasDrawn = false;
+    let matchTimer = null;
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = wrap.offsetWidth * dpr;
+      canvas.height = wrap.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.strokeStyle = '#7ef07e';
+      ctx.lineWidth = 18;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const src = e.touches ? e.touches[0] : e;
+      return {
+        x: src.clientX - rect.left,
+        y: src.clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      drawing = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      hint.style.opacity = '0';
+      clearTimeout(matchTimer);
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      hasDrawn = true;
+      clearBtn.style.opacity = '1';
+    }
+
+    function endDraw() {
+      if (!drawing) return;
+      drawing = false;
+      if (hasDrawn) {
+        matchTimer = setTimeout(findMatch, 1200);
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', endDraw);
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasDrawn = false;
+      hint.style.opacity = '1';
+      clearBtn.style.opacity = '0';
+      clearTimeout(matchTimer);
+      document.getElementById('resultWrap').classList.remove('visible');
+      document.getElementById('loading').classList.remove('visible');
+    }
+
+    async function findMatch() {
+      const dataURL = canvas.toDataURL('image/png');
+      document.getElementById('loading').classList.add('visible');
+      document.getElementById('resultWrap').classList.remove('visible');
+
+      try {
+        const response = await fetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataURL })
+        });
+
+        const data = await response.json();
+
+        document.getElementById('loading').classList.remove('visible');
+        document.getElementById('drawingPreview').src = dataURL;
+        document.getElementById('matchImg').src = 'spoons/' + data.filename;
+        document.getElementById('matchName').textContent = data.filename.replace('.png', '').replace(/-/g, ' ');
+        document.getElementById('resultWrap').classList.add('visible');
+
+      } catch (err) {
+        document.getElementById('loading').classList.remove('visible');
+        console.error('Match failed:', err);
+      }
+    }
+  </script>
+
+</body>
+</html>
