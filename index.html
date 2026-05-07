@@ -356,32 +356,25 @@ async function findMatch() {
 
   if (!spoonsData) await loadSpoons();
 
-  const drawingVec = getCanvasEmbedding();
+  try {
+    const response = await fetch('/api/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataURL, spoons: spoonsData })
+    });
 
-  let best = null;
-  let bestScore = -Infinity;
+    const data = await response.json();
 
-  for (const spoon of spoonsData) {
-    const spoonVec = spoon.embedding;
-    const dim = Math.min(drawingVec.length, spoonVec.length);
-    let dot = 0, magA = 0, magB = 0;
-    for (let i = 0; i < dim; i++) {
-      dot += drawingVec[i % drawingVec.length] * spoonVec[i];
-      magA += drawingVec[i % drawingVec.length] ** 2;
-      magB += spoonVec[i] ** 2;
-    }
-    const score = dot / (Math.sqrt(magA) * Math.sqrt(magB));
-    if (score > bestScore) {
-      bestScore = score;
-      best = spoon;
-    }
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('drawingPreview').src = dataURL;
+    document.getElementById('matchImg').src = 'spoons/' + data.filename;
+    document.getElementById('matchName').textContent = data.filename.replace('.png','').replace(/-/g,' ');
+    document.getElementById('resultWrap').classList.add('visible');
+
+  } catch (err) {
+    document.getElementById('loading').classList.remove('visible');
+    console.error('Match failed:', err);
   }
-
-  document.getElementById('loading').classList.remove('visible');
-  document.getElementById('drawingPreview').src = dataURL;
-  document.getElementById('matchImg').src = 'spoons/' + best.filename;
-  document.getElementById('matchName').textContent = best.filename.replace('.png','').replace(/-/g,' ');
-  document.getElementById('resultWrap').classList.add('visible');
 }
   </script>
 
