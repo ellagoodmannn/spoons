@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
           content: [
             {
               type: 'text',
-              text: `Here is a hand-drawn spoon. I have these spoon artworks:\n${spoonList}\n\nWhich filename is most similar in shape to this drawing? Reply with ONLY the filename, nothing else.`
+              text: `You are looking at a hand-drawn spoon. Pick the single most similar filename from this list based on shape. Reply with ONLY the filename exactly as written, no explanation, no punctuation, nothing else:\n${spoonList}`
             },
             {
               type: 'image',
