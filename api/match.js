@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
   const imageData = image.split(',')[1];
 
   const shuffled = spoons.sort(() => Math.random() - 0.5);
-  const subset = shuffled.slice(0, 5);
+  const subset = shuffled.slice(0, 3);
 
   const content = [
     {
