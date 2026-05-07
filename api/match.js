@@ -5,7 +5,37 @@ module.exports = async function handler(req, res) {
 
   const { image, spoons } = req.body;
   const imageData = image.split(',')[1];
-  const spoonList = spoons.map((s, i) => `${i + 1}. ${s.filename}`).join('\n');
+
+  // Fetch all spoon images and convert to base64
+  const spoonImages = await Promise.all(
+    spoons.map(async (s) => {
+      const url = `https://spoons-sigma.vercel.app/spoons/${s.filename}`;
+      const r = await fetch(url);
+      const buf = await r.arrayBuffer();
+      const b64 = Buffer.from(buf).toString('base64');
+      return { filename: s.filename, b64 };
+    })
+  );
+
+  // Build content array with drawing + all spoon images
+  const content = [
+    {
+      type: 'text',
+      text: 'Here is a hand-drawn spoon followed by my spoon artworks. Which artwork is most similar in shape to the drawing? Reply with ONLY the filename, nothing else.'
+    },
+    {
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/png', data: imageData }
+    },
+    {
+      type: 'text',
+      text: 'Here are my spoon artworks:'
+    },
+    ...spoonImages.map((s, i) => ([
+      { type: 'text', text: `${i + 1}. ${s.filename}` },
+      { type: 'image', source: { type: 'base64', media_type: 'image/png', data: s.b64 } }
+    ])).flat()
+  ];
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -17,25 +47,7 @@ module.exports = async function handler(req, res) {
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 100,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `You are looking at a hand-drawn spoon. Pick the single most similar filename from this list based on shape. Reply with ONLY the filename exactly as written, no explanation, no punctuation, nothing else:\n${spoonList}`
-            },
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/png',
-                data: imageData
-              }
-            }
-          ]
-        }
-      ]
+      messages: [{ role: 'user', content }]
     })
   });
 
