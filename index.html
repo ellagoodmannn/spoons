@@ -298,7 +298,7 @@
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', endDraw);
-    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('mouseleave', () => { drawing = false; });
     canvas.addEventListener('touchstart', startDraw, { passive: false });
     canvas.addEventListener('touchmove', draw, { passive: false });
     canvas.addEventListener('touchend', endDraw);
@@ -313,31 +313,76 @@
       document.getElementById('loading').classList.remove('visible');
     }
 
-    async function findMatch() {
-      const dataURL = canvas.toDataURL('image/png');
-      document.getElementById('loading').classList.add('visible');
-      document.getElementById('resultWrap').classList.remove('visible');
+    let spoonsData = null;
 
-      try {
-        const response = await fetch('/api/match', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataURL })
-        });
+async function loadSpoons() {
+  const res = await fetch('spoons.json');
+  spoonsData = await res.json();
+}
 
-        const data = await response.json();
+loadSpoons();
 
-        document.getElementById('loading').classList.remove('visible');
-        document.getElementById('drawingPreview').src = dataURL;
-        document.getElementById('matchImg').src = 'spoons/' + data.filename;
-        document.getElementById('matchName').textContent = data.filename.replace('.png', '').replace(/-/g, ' ');
-        document.getElementById('resultWrap').classList.add('visible');
+function cosineSimilarity(a, b) {
+  let dot = 0, magA = 0, magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+}
 
-      } catch (err) {
-        document.getElementById('loading').classList.remove('visible');
-        console.error('Match failed:', err);
-      }
+function getCanvasEmbedding() {
+  const offscreen = document.createElement('canvas');
+  offscreen.width = 224;
+  offscreen.height = 224;
+  const octx = offscreen.getContext('2d');
+  octx.fillStyle = '#fff';
+  octx.fillRect(0, 0, 224, 224);
+  octx.drawImage(canvas, 0, 0, 224, 224);
+  const imageData = octx.getImageData(0, 0, 224, 224);
+  const pixels = imageData.data;
+  const embedding = [];
+  for (let i = 0; i < pixels.length; i += 4) {
+    embedding.push((pixels[i] + pixels[i+1] + pixels[i+2]) / (3 * 255));
+  }
+  return embedding;
+}
+
+async function findMatch() {
+  const dataURL = canvas.toDataURL('image/png');
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('resultWrap').classList.remove('visible');
+
+  if (!spoonsData) await loadSpoons();
+
+  const drawingVec = getCanvasEmbedding();
+
+  let best = null;
+  let bestScore = -Infinity;
+
+  for (const spoon of spoonsData) {
+    const spoonVec = spoon.embedding;
+    const dim = Math.min(drawingVec.length, spoonVec.length);
+    let dot = 0, magA = 0, magB = 0;
+    for (let i = 0; i < dim; i++) {
+      dot += drawingVec[i % drawingVec.length] * spoonVec[i];
+      magA += drawingVec[i % drawingVec.length] ** 2;
+      magB += spoonVec[i] ** 2;
     }
+    const score = dot / (Math.sqrt(magA) * Math.sqrt(magB));
+    if (score > bestScore) {
+      bestScore = score;
+      best = spoon;
+    }
+  }
+
+  document.getElementById('loading').classList.remove('visible');
+  document.getElementById('drawingPreview').src = dataURL;
+  document.getElementById('matchImg').src = 'spoons/' + best.filename;
+  document.getElementById('matchName').textContent = best.filename.replace('.png','').replace(/-/g,' ');
+  document.getElementById('resultWrap').classList.add('visible');
+}
   </script>
 
 </body>
