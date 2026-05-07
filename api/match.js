@@ -7,7 +7,8 @@ module.exports = async function handler(req, res) {
   const imageData = image.split(',')[1];
 
   // Only send 10 spoons at a time to stay within memory limits
-  const subset = spoons.slice(0, 10);
+  const shuffled = spoons.sort(() => Math.random() - 0.5);
+const subset = shuffled.slice(0, 5);
 
   const spoonImages = await Promise.all(
     subset.map(async (s) => {
