@@ -6,19 +6,8 @@ module.exports = async function handler(req, res) {
   const { image, spoons } = req.body;
   const imageData = image.split(',')[1];
 
-  // Only send 10 spoons at a time to stay within memory limits
   const shuffled = spoons.sort(() => Math.random() - 0.5);
-const subset = shuffled.slice(0, 5);
-
-  const spoonImages = await Promise.all(
-    subset.map(async (s) => {
-      const url = `https://spoons-sigma.vercel.app/spoons/${s.filename}`;
-      const r = await fetch(url);
-      const buf = await r.arrayBuffer();
-      const b64 = Buffer.from(buf).toString('base64');
-      return { filename: s.filename, b64 };
-    })
-  );
+  const subset = shuffled.slice(0, 5);
 
   const content = [
     {
@@ -33,9 +22,9 @@ const subset = shuffled.slice(0, 5);
       type: 'text',
       text: 'Here are my spoon artworks:'
     },
-    ...spoonImages.map((s, i) => ([
+    ...subset.map((s, i) => ([
       { type: 'text', text: `${i + 1}. ${s.filename}` },
-      { type: 'image', source: { type: 'base64', media_type: 'image/png', data: s.b64 } }
+      { type: 'image', source: { type: 'base64', media_type: 'image/png', data: s.thumbnail } }
     ])).flat()
   ];
 
