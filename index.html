@@ -141,11 +141,13 @@
 
     /* RESULT */
     .result-wrap {
-      display: none;
-      margin-top: 40px;
-      gap: 40px;
-      align-items: flex-start;
-    }
+  display: none;
+  margin-top: 24px;
+}
+
+.result-wrap.visible {
+  display: block;
+}
 
     .result-wrap.visible {
       display: flex;
@@ -213,7 +215,7 @@
   <main>
     <h1>Draw a spoon, see a spoon.</h1>
 
-    <div class="canvas-wrap" id="canvasWrap" style="height: 520px;">
+    <div class="canvas-wrap" id="canvasWrap" style="height: 300px;">
       <canvas id="drawCanvas"></canvas>
       <div class="canvas-hint" id="hint">Draw your spoon here</div>
       <button class="clear-btn" id="clearBtn" onclick="clearCanvas()">Clear</button>
@@ -222,10 +224,6 @@
     <div class="loading" id="loading">Looking for your spoon...</div>
 
     <div class="result-wrap" id="resultWrap">
-      <div class="result-drawing">
-        <p class="result-label">Your drawing</p>
-        <img id="drawingPreview" src="" alt="Your drawing">
-      </div>
       <div class="result-match">
         <p class="result-label">Closest spoon</p>
         <img class="result-match-img" id="matchImg" src="" alt="Matched spoon">
