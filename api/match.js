@@ -6,9 +6,11 @@ module.exports = async function handler(req, res) {
   const { image, spoons } = req.body;
   const imageData = image.split(',')[1];
 
-  // Fetch all spoon images and convert to base64
+  // Only send 10 spoons at a time to stay within memory limits
+  const subset = spoons.slice(0, 10);
+
   const spoonImages = await Promise.all(
-    spoons.map(async (s) => {
+    subset.map(async (s) => {
       const url = `https://spoons-sigma.vercel.app/spoons/${s.filename}`;
       const r = await fetch(url);
       const buf = await r.arrayBuffer();
@@ -17,7 +19,6 @@ module.exports = async function handler(req, res) {
     })
   );
 
-  // Build content array with drawing + all spoon images
   const content = [
     {
       type: 'text',
