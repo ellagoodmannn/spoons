@@ -1,11 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "api/match.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/match", "dest": "/api/match.js" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "functions": {
+    "api/match.js": {
+      "maxDuration": 30
+    }
+  }
 }
