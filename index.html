@@ -247,98 +247,108 @@
   </main>
 
   <script>
-    const canvas = document.getElementById('drawCanvas');
-    const ctx = canvas.getContext('2d');
-    const wrap = document.getElementById('canvasWrap');
-    const hint = document.getElementById('hint');
-    const clearBtn = document.getElementById('clearBtn');
+   const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('canvasWrap');
+const hint = document.getElementById('hint');
+const clearBtn = document.getElementById('clearBtn');
 
-    let drawing = false;
-    let hasDrawn = false;
-    let matchTimer = null;
-    let strokes = [];
-    let currentStroke = [];
+let drawing = false;
+let hasDrawn = false;
+let matchTimer = null;
+let strokes = [];
+let currentStroke = [];
 
-    function resizeCanvas() {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = wrap.offsetWidth * dpr;
-      canvas.height = wrap.offsetHeight * dpr;
-      ctx.scale(dpr, dpr);
-      ctx.strokeStyle = '#7ef07e';
-      ctx.lineWidth = 18;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-    }
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = wrap.offsetWidth * dpr;
+  canvas.height = wrap.offsetHeight * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = '#7ef07e';
+  ctx.lineWidth = 18;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+}
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const src = e.touches ? e.touches[0] : e;
-      return {
-        x: src.clientX - rect.left,
-        y: src.clientY - rect.top
-      };
-    }
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return {
+    x: src.clientX - rect.left,
+    y: src.clientY - rect.top
+  };
+}
 
-    function startDraw(e) {
-      drawing = true;
-      const pos = getPos(e);
-      ctx.beginPath();
-      ctx.moveTo(pos.x, pos.y);
-      hint.style.opacity = '0';
-      clearTimeout(matchTimer);
-      strokes = [];
-      currentStroke = [];
-    }
-
-    function draw(e) {
-      if (!drawing) return;
-      e.preventDefault();
-      const pos = getPos(e);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      hasDrawn = true;
-      clearBtn.style.opacity = '1';
-      currentStroke.push({x: pos.x, y: pos.y});
-    }
-
-    function endDraw() {
-      if (!drawing) return;
-      drawing = false;
-      if (hasDrawn) {
-        matchTimer = setTimeout(findMatch, 1200);
-      }
-      if (currentStroke.length) {
-  strokes.push(currentStroke);
+function startDraw(e) {
+  drawing = true;
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+  hint.style.opacity = '0';
+  clearTimeout(matchTimer);
+  strokes = [];
   currentStroke = [];
 }
-    }
 
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', endDraw);
-    canvas.addEventListener('mouseleave', () => { drawing = false; });
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', endDraw);
+function draw(e) {
+  if (!drawing) return;
+  e.preventDefault();
+  const pos = getPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  hasDrawn = true;
+  clearBtn.style.opacity = '1';
+  currentStroke.push({x: pos.x, y: pos.y});
+}
 
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      hasDrawn = false;
-      hint.style.opacity = '1';
-      clearBtn.style.opacity = '0';
-      clearTimeout(matchTimer);
-      document.getElementById('resultWrap').classList.remove('visible');
-      async function findMatch() {
+function endDraw() {
+  if (!drawing) return;
+  drawing = false;
+  if (currentStroke.length) {
+    strokes.push(currentStroke);
+    currentStroke = [];
+  }
+  if (hasDrawn) {
+    matchTimer = setTimeout(findMatch, 1200);
+  }
+}
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', () => { drawing = false; });
+canvas.addEventListener('touchstart', startDraw, { passive: false });
+canvas.addEventListener('touchmove', draw, { passive: false });
+canvas.addEventListener('touchend', endDraw);
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasDrawn = false;
+  hint.style.opacity = '1';
+  clearBtn.style.opacity = '0';
+  clearTimeout(matchTimer);
+  strokes = [];
+  currentStroke = [];
+  document.getElementById('resultWrap').classList.remove('visible');
+  document.getElementById('loading').classList.remove('visible');
+}
+
+let spoonsData = null;
+
+async function loadSpoons() {
+  const res = await fetch('spoons.json');
+  spoonsData = await res.json();
+}
+
+loadSpoons();
+
+async function findMatch() {
   const dataURL = canvas.toDataURL('image/png');
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultWrap').classList.remove('visible');
-  await supabase.from('drawings').insert({
-  strokes: strokes,
-  matched_spoon: data.filename
-});
 
   if (!spoonsData) await loadSpoons();
 
@@ -354,56 +364,23 @@
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('matchImg').src = 'spoons/' + data.filename;
     document.getElementById('matchName').textContent = data.filename
-  .replace('.png','')
-  .replace(/-/g,' ')
-  .replace(/(\d+)\s(\d+)/g, '$1.$2')
-  .replace(/\b\w/g, c => c.toUpperCase())
-  .replace(/\bIn\b/g, 'in')
-  .replace(/\bX\b/g, 'x');
+      .replace('.png','')
+      .replace(/-/g,' ')
+      .replace(/(\d+)\s(\d+)/g, '$1.$2')
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace(/\bIn\b/g, 'in')
+      .replace(/\bX\b/g, 'x');
     document.getElementById('resultWrap').classList.add('visible');
+
+    await supabase.from('drawings').insert({
+      strokes: strokes,
+      matched_spoon: data.filename
+    });
 
   } catch (err) {
     document.getElementById('loading').classList.remove('visible');
     console.error('Match failed:', err);
   }
-}
-      document.getElementById('loading').classList.remove('visible');
-    }
-
-    let spoonsData = null;
-
-async function loadSpoons() {
-  const res = await fetch('spoons.json');
-  spoonsData = await res.json();
-}
-
-loadSpoons();
-
-function cosineSimilarity(a, b) {
-  let dot = 0, magA = 0, magB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    magA += a[i] * a[i];
-    magB += b[i] * b[i];
-  }
-  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
-}
-
-function getCanvasEmbedding() {
-  const offscreen = document.createElement('canvas');
-  offscreen.width = 224;
-  offscreen.height = 224;
-  const octx = offscreen.getContext('2d');
-  octx.fillStyle = '#fff';
-  octx.fillRect(0, 0, 224, 224);
-  octx.drawImage(canvas, 0, 0, 224, 224);
-  const imageData = octx.getImageData(0, 0, 224, 224);
-  const pixels = imageData.data;
-  const embedding = [];
-  for (let i = 0; i < pixels.length; i += 4) {
-    embedding.push((pixels[i] + pixels[i+1] + pixels[i+2]) / (3 * 255));
-  }
-  return embedding;
 }
 
 
