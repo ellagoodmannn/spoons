@@ -5,12 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>spoons</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient(
-      'https://lkqpdcmggssrlboawcup.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcXBkY21nZ3Nzcmxib2F3Y3VwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTgxMzYsImV4cCI6MjA5NDI5NDEzNn0.rmARbJS6EdB8CTQTvMDMYs1FrMJUCXckVq90eFErkvE'
-    )
-  </script>
+
   <style>
     @font-face {
       font-family: 'GT Haptik';
@@ -247,6 +242,12 @@
   </main>
 
   <script>
+  
+    const supabase = window.supabase.createClient(
+      'https://lkqpdcmggssrlboawcup.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcXBkY21nZ3Nzcmxib2F3Y3VwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTgxMzYsImV4cCI6MjA5NDI5NDEzNn0.rmARbJS6EdB8CTQTvMDMYs1FrMJUCXckVq90eFErkvE'
+    )
+ 
    const canvas = document.getElementById('drawCanvas');
 const ctx = canvas.getContext('2d');
 const wrap = document.getElementById('canvasWrap');
