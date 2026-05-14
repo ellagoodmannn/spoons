@@ -243,7 +243,7 @@
 
   <script>
   
-    const supabase = window.supabase.createClient(
+    const db = window.supabase.createClient(
       'https://lkqpdcmggssrlboawcup.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcXBkY21nZ3Nzcmxib2F3Y3VwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTgxMzYsImV4cCI6MjA5NDI5NDEzNn0.rmARbJS6EdB8CTQTvMDMYs1FrMJUCXckVq90eFErkvE'
     )
@@ -373,7 +373,7 @@ async function findMatch() {
       .replace(/\bX\b/g, 'x');
     document.getElementById('resultWrap').classList.add('visible');
 
-    await supabase.from('drawings').insert({
+    await db.from('drawings').insert({
       strokes: strokes,
       matched_spoon: data.filename
     });
