@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>spoons</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://lkqpdcmggssrlboawcup.supabase.co/rest/v1/',
+      'sb_publishable_4UT9Giy64eASR0C8q3DNnA_TToEzUWo'
+    )
+  </script>
   <style>
     @font-face {
       font-family: 'GT Haptik';
@@ -249,6 +256,8 @@
     let drawing = false;
     let hasDrawn = false;
     let matchTimer = null;
+    let strokes = [];
+    let currentStroke = [];
 
     function resizeCanvas() {
       const dpr = window.devicePixelRatio || 1;
@@ -280,6 +289,8 @@
       ctx.moveTo(pos.x, pos.y);
       hint.style.opacity = '0';
       clearTimeout(matchTimer);
+      strokes = [];
+      currentStroke = [];
     }
 
     function draw(e) {
@@ -290,6 +301,7 @@
       ctx.stroke();
       hasDrawn = true;
       clearBtn.style.opacity = '1';
+      currentStroke.push({x: pos.x, y: pos.y});
     }
 
     function endDraw() {
@@ -298,6 +310,10 @@
       if (hasDrawn) {
         matchTimer = setTimeout(findMatch, 1200);
       }
+      if (currentStroke.length) {
+  strokes.push(currentStroke);
+  currentStroke = [];
+}
     }
 
     canvas.addEventListener('mousedown', startDraw);
@@ -358,6 +374,10 @@ async function findMatch() {
   const dataURL = canvas.toDataURL('image/png');
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultWrap').classList.remove('visible');
+  await supabase.from('drawings').insert({
+  strokes: strokes,
+  matched_spoon: data.filename
+});
 
   if (!spoonsData) await loadSpoons();
 
