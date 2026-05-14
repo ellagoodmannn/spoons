@@ -144,9 +144,14 @@
     .clear-btn:hover { background: #f0f0f0; }
 
     /* RESULT */
-    .result-wrap {
+.result-wrap {
   display: none;
-  margin-top: 24px;
+  margin-top: 16px;
+  max-height: 250px;
+}
+
+.result-wrap.visible {
+  display: block;
 }
 
 .result-wrap.visible {
@@ -178,7 +183,7 @@
 
     .result-match-img {
       object-fit: contain;
-      max-height: 420px;
+      max-height: 220px;
     }
 
     .match-name {
