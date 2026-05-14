@@ -365,7 +365,7 @@ async function findMatch() {
 
     document.getElementById('loading').classList.remove('visible');
     document.getElementById('matchImg').src = 'spoons/' + data.filename;
-    document.getElementById('matchName').textContent = data.filename.replace('.png','').replace(/-/g,' ');
+    document.getElementById('matchName').textContent = data.filename.replace('.png','').replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
     document.getElementById('resultWrap').classList.add('visible');
 
   } catch (err) {
