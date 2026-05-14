@@ -102,6 +102,7 @@
       background: #e2fae2;
       overflow: hidden;
       cursor: url('cursor-spoon.png') 16 16, crosshair;
+       height: 50vh;
     }
 
     canvas {
@@ -216,7 +217,7 @@
   <main>
     <h1>Draw a spoon, see a spoon ↓</h1>
 
-<div class="canvas-wrap" id="canvasWrap" style="height: calc(100vh - 200px);">
+<div class="canvas-wrap" id="canvasWrap">
       <canvas id="drawCanvas"></canvas>
       <div class="canvas-hint" id="hint"></div>
       <button class="clear-btn" id="clearBtn" onclick="clearCanvas()">Clear</button>
