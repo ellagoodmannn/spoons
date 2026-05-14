@@ -144,6 +144,21 @@
     }
 
     .clear-btn:hover { background: #f0f0f0; }
+    .archive-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  font-family: 'GT Haptik', sans-serif;
+  font-weight: 400;
+  font-size: 0.85rem;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 6px 14px;
+  text-decoration: none;
+  color: #000;
+}
+
+.archive-btn:hover { background: #f0f0f0; }
 
     /* RESULT */
 .result-wrap {
@@ -222,12 +237,13 @@
   </nav>
 
   <main>
-    <h1>Draw a spoon, see a spoon ↓</h1>
+    <h1>See a spoon, leave a spoon ↓</h1>
 
 <div class="canvas-wrap" id="canvasWrap">
       <canvas id="drawCanvas"></canvas>
       <div class="canvas-hint" id="hint"></div>
-      <button class="clear-btn" id="clearBtn" onclick="clearCanvas()">Clear</button>
+<button class="clear-btn" id="clearBtn" onclick="clearCanvas()">Clear</button>
+<a class="archive-btn" href="/archive.html">See all drawn spoons</a>
     </div>
 
     <div class="loading" id="loading">Looking for the closest spoon...</div>
