@@ -369,7 +369,9 @@ async function findMatch() {
   .replace('.png','')
   .replace(/-/g,' ')
   .replace(/(\d+)\s(\d+)/g, '$1.$2')
-  .replace(/\b\w/g, c => c.toUpperCase());
+  .replace(/\b\w/g, c => c.toUpperCase())
+  .replace(/\bIn\b/g, 'in')
+  .replace(/\bX\b/g, 'x');
     document.getElementById('resultWrap').classList.add('visible');
 
   } catch (err) {
