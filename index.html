@@ -263,6 +263,7 @@
       'https://lkqpdcmggssrlboawcup.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcXBkY21nZ3Nzcmxib2F3Y3VwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTgxMzYsImV4cCI6MjA5NDI5NDEzNn0.rmARbJS6EdB8CTQTvMDMYs1FrMJUCXckVq90eFErkvE'
     )
+    console.log('script starting')
  
    const canvas = document.getElementById('drawCanvas');
 const ctx = canvas.getContext('2d');
@@ -395,4 +396,13 @@ async function findMatch() {
     });
 
   } catch (err) {
-    document.getElementById('l
+    document.getElementById('loading').classList.remove('visible');
+    console.error('Match failed:', err);
+  }
+}
+
+
+  </script>
+
+</body>
+</html>
