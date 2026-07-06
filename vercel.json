@@ -10,7 +10,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://*.cargo.site https://cargo.site;"
+          "value": "frame-ancestors 'self' https://cargo.site https://cargo.site;"
         }
       ]
     },
